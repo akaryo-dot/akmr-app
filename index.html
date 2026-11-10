@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>AKMR出退勤</title>
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="AKMR出退勤">
+  <meta name="application-name" content="AKMR出退勤">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/RVBr5H93/42e988e2-ac9e-4027-812d-26a259d13d5c.jpg">
+  <link rel="apple-touch-icon-precomposed" href="https://i.postimg.cc/RVBr5H93/42e988e2-ac9e-4027-812d-26a259d13d5c.jpg">
+  <link rel="icon" type="image/jpeg" href="https://i.postimg.cc/RVBr5H93/42e988e2-ac9e-4027-812d-26a259d13d5c.jpg">
+
+  <style>
+    * { 
+      box-sizing: border-box; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", sans-serif; 
+    }
+
+    body { 
+      margin: 0; 
+      padding: 16px; 
+      padding-bottom: 320px; 
+      background: 
+        radial-gradient(circle at 10% 20%, rgba(134, 239, 172, 0.28) 0%, transparent 45%),
+        radial-gradient(circle at 90% 60%, rgba(254, 240, 138, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 50% 90%, rgba(187, 247, 208, 0.4) 0%, transparent 60%),
+        linear-gradient(165deg, #eaf5ec 0%, #f4f8f1 40%, #f7f5ed 100%);
+      background-attachment: fixed;
+      color: #1e3a29; 
+    }
+
+    /* 起動スプラッシュスクリーン */
+    .splash-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 50% 45%, #133a25 0%, #0d2518 50%, #05110a 100%);
+      z-index: 100005;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      transition: opacity 1.1s cubic-bezier(0.16, 1, 0.3, 1), visibility 1.1s;
+    }
+    .splash-screen.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .sun-rays {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: conic-gradient(
+        from 0deg, 
+        rgba(250, 204, 21, 0) 0deg, 
+        rgba(250, 204, 21, 0.12) 20deg, 
+        rgba(74, 222, 128, 0.08) 40deg,
+        rgba(250, 204, 21, 0) 60deg
+      );
+      border-radius: 50%;
+      filter: blur(12px);
+      animation: rotateRays 22s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes rotateRays {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .sun-glow {
+      position: absolute;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, rgba(253, 224, 71, 0.45) 0%, rgba(74, 222, 128, 0.25) 45%, rgba(0,0,0,0) 72%);
+      border-radius: 50%;
+      filter: blur(28px);
+      animation: sunRise 4.2s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes sunRise {
+      0% { transform: scale(0.4) translateY(60px); opacity: 0; }
+      40% { transform: scale(1.1) translateY(-10px); opacity: 0.95; }
+      100% { transform: scale(1.3) translateY(0); opacity: 0.8; }
+    }
+
+    .nature-ripple {
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      border: 2px solid rgba(134, 239, 172, 0.5);
+      border-radius: 50%;
+      animation: rippleBurst 3.2s cubic-bezier(0.1, 0.8, 0.2, 1) infinite;
+      pointer-events: none;
+    }
+    .nature-ripple:nth-child(2) {
+      animation-delay: 1.1s;
+      border-color: rgba(250, 204, 21, 0.45);
+    }
+    .nature-ripple:nth-child(3) {
+      animation-delay: 2.2s;
+      border-color: rgba(74, 222, 128, 0.35);
+    }
+    @keyframes rippleBurst {
+      0% { transform: scale(0.7); opacity: 0.9; }
+      100% { transform: scale(3.2); opacity: 0; }
+    }
+
+    .dew-particle {
+      position: absolute;
+      background: radial-gradient(circle, #ffffff, rgba(134, 239, 172, 0.8));
+      border-radius: 50%;
+      pointer-events: none;
+      animation: floatDew linear infinite;
+    }
+    @keyframes floatDew {
+      0% { transform: translateY(105vh) scale(0); opacity: 0; }
+      25% { opacity: 0.9; }
+      80% { opacity: 0.7; }
+      100% { transform: translateY(-30px) scale(1.3); opacity: 0; }
+    }
+
+    .leaf-particle {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: rgba(134, 239, 172, 0.45);
+      border-radius: 2px 12px 2px 12px;
+      pointer-events: none;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+      animation: leafSway ease-in-out infinite;
+    }
+    @keyframes leafSway {
+      0% { transform: translateY(105vh) rotate(0deg) scale(0.6); opacity: 0; }
+      20% { opacity: 0.8; }
+      50% { transform: translateY(50vh) rotate(180deg) translateX(30px) scale(1); }
+      80% { opacity: 0.7; }
+      100% { transform: translateY(-40px) rotate(360deg) translateX(-20px) scale(0.8); opacity: 0; }
+    }
+
+    .splash-content {
+      position: relative;
+      z-index: 5;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .splash-logo-wrap {
+      width: 144px;
+      height: 144px;
+      border-radius: 50%;
+      background: #ffffff;
+      padding: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 
+        0 0 35px rgba(134, 239, 172, 0.6),
+        0 0 75px rgba(250, 204, 21, 0.35),
+        0 20px 40px rgba(0, 0, 0, 0.65);
+      margin-bottom: 28px;
+      animation: logoEpicArrival 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .splash-logo {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    @keyframes logoEpicArrival {
+      0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(35px) rotate(-10deg);
+        filter: brightness(0.3) blur(10px);
+      }
+      60% {
+        transform: scale(1.08) translateY(-5px) rotate(2deg);
+        filter: brightness(1.2) blur(0);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0) rotate(0deg);
+        filter: brightness(1) blur(0);
+      }
+    }
+
+    .splash-catch {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.32em;
+      text-indent: 0.32em;
+      background: linear-gradient(120deg, #bbf7d0 0%, #ffffff 28%, #fef08a 62%, #86efac 100%);
+      background-size: 240% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: 
+        catchEpicArrival 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards,
+        shimmerWave 3.0s linear infinite 1.8s;
+      filter: drop-shadow(0 3px 10px rgba(0,0,0,0.6));
+    }
+
+    @keyframes catchEpicArrival {
+      0% { opacity: 0; transform: translateY(20px); letter-spacing: 0.15em; }
+      100% { opacity: 1; transform: translateY(0); letter-spacing: 0.32em; }
+    }
+    @keyframes shimmerWave {
+      0% { background-position: 240% center; }
+      100% { background-position: -240% center; }
+    }
+
+    .splash-sub {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.4em;
+      text-indent: 0.4em;
+      color: rgba(187, 247, 208, 0.85);
+      margin-top: 10px;
+      opacity: 0;
+      animation: subEpicFade 0.9s ease-out 1.4s forwards;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    }
+    @keyframes subEpicFade {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .splash-skip-hint {
+      position: absolute;
+      bottom: 30px;
+      font-size: 0.72rem;
+      color: rgba(255, 255, 255, 0.45);
+      letter-spacing: 0.1em;
+      animation: hintBlink 2s infinite ease-in-out;
+    }
+    @keyframes hintBlink {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.7; }
+    }
+
+    .card { 
+      background: rgba(255, 255, 255, 0.88); 
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px; 
+      padding: 18px; 
+      margin-bottom: 16px; 
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 8px 24px rgba(34, 76, 45, 0.07); 
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 100%;
+      overflow: hidden;
+    }
+    h2 { 
+      margin: 0 0 14px 0; 
+      font-size: 1.05rem; 
+      font-weight: 700; 
+      color: #234e32; 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+    }
+    h2::before {
+      content: "🌱";
+      font-size: 1rem;
+    }
+    label { 
+      font-size: 0.85rem; 
+      font-weight: 700; 
+      color: #3b5f47; 
+      display: block; 
+      margin-bottom: 6px; 
+    }
+    
+    input, select, textarea { 
+      width: 100%; 
+      max-width: 100%; 
+      min-width: 0;
+      box-sizing: border-box;
+      display: block; 
+      padding: 13px; 
+      border: 1.5px solid #cfe0d4; 
+      border-radius: 10px; 
+      font-size: 1rem; 
+      margin-bottom: 12px; 
+      background: #fbfdfb; 
+      color: #1e3a29;
+      -webkit-appearance: none;
+      appearance: none;
+      transition: all 0.2s ease;
+    }
+    input:focus, select:focus, textarea:focus { 
+      background: #ffffff; 
+      border-color: #2e7d32; 
+      outline: none; 
+      box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
+    }
+
+    input[type="date"], input[type="month"], input[type="time"] {
+      height: 48px;
+      line-height: normal;
+      background-color: #fbfdfb;
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .btn { 
+      width: 100%; 
+      padding: 14px; 
+      border: none; 
+      border-radius: 10px; 
+      font-size: 1rem; 
+      font-weight: 700; 
+      cursor: pointer; 
+      margin-bottom: 8px; 
+      transition: transform 0.1s ease, filter 0.2s ease;
+      box-sizing: border-box;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .btn-green { 
+      background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); 
+      color: #fff; 
+      box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+    }
+    .btn-blue { 
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+      color: #fff; 
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    .btn-purple { 
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); 
+      color: #fff; 
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+    }
+    .btn-gray { 
+      background: #849688; 
+      color: #fff; 
+    }
+    .btn-red { 
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); 
+      color: #fff; 
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+    .btn-sub { 
+      background: #e2ede5; 
+      color: #274b35; 
+      font-size: 0.88rem; 
+      padding: 10px; 
+    }
+    
+    .invoice-links { 
+      margin-top: 10px; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 8px; 
+    }
+    .link-btn { 
+      display: block; 
+      text-align: center; 
+      padding: 12px; 
+      border-radius: 8px; 
+      text-decoration: none; 
+      font-weight: 700; 
+      font-size: 0.92rem; 
+      box-sizing: border-box;
+    }
+    .link-pdf { background: #b91c1c; color: #fff; }
+    .link-sheet { background: #e2ede5; color: #1e3a29; border: 1px solid #c0d8c7; }
+    .link-schedule { background: #059669; color: #fff; }
+    .sheet-link { text-align: center; margin-top: 12px; }
+    .sheet-link a { color: #1b5e20; font-size: 0.88rem; text-decoration: none; font-weight: 600; }
+    .notice { 
+      background: #fef9c3; 
+      color: #713f12; 
+      padding: 12px; 
+      border-radius: 10px; 
+      font-size: 0.85rem; 
+      margin-bottom: 14px; 
+      line-height: 1.5; 
+      border: 1px solid #fef08a;
+    }
+
+    .manual-box { 
+      background: #ffffff; 
+      border: 1px dashed #cfe0d4; 
+      border-radius: 12px; 
+      padding: 14px; 
+      margin-top: 12px; 
+    }
+    .log-table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      font-size: 0.82rem; 
+      margin-top: 10px; 
+    }
+    .log-table th, .log-table td { 
+      border-bottom: 1px solid #e2ede5; 
+      padding: 8px 4px; 
+      text-align: left; 
+    }
+    .log-table th { 
+      color: #4b6b55; 
+      font-weight: bold; 
+    }
+    .btn-del { 
+      background: #fee2e2; 
+      color: #b91c1c; 
+      border: 1px solid #fca5a5; 
+      border-radius: 6px; 
+      padding: 6px 12px; 
+      font-size: 0.78rem; 
+      font-weight: bold; 
+      cursor: pointer; 
+      transition: all 0.2s ease; 
+    }
+    .btn-del:active { 
+      transform: scale(0.95); 
+      background: #fecaca; 
+    }
+
+    .status-banner { 
+      border-radius: 12px; 
+      padding: 13px 15px; 
+      margin-bottom: 15px; 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      font-size: 0.92rem; 
+    }
+    .status-idle { 
+      background: #edf3ee; 
+      border: 1px solid #d3e2d6; 
+      color: #587260; 
+    }
+    .status-working { 
+      background: #dcfce7; 
+      border: 1.5px solid #4ade80; 
+      color: #14532d; 
+      animation: pulse-glow 2s infinite; 
+    }
+    @keyframes pulse-glow { 
+      0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.45); } 
+      70% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); } 
+      100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } 
+    }
+    .status-dot { 
+      width: 13px; 
+      height: 13px; 
+      border-radius: 50%; 
+      flex-shrink: 0; 
+    }
+    .dot-idle { background: #9bb0a1; }
+    .dot-working { background: #22c55e; }
+
+    .tab-nav {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      background: #e2ede5;
+      padding: 4px;
+      border-radius: 12px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 4px;
+      border: none;
+      background: transparent;
+      border-radius: 9px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #3b5f47;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .tab-btn.active {
+      background: #ffffff;
+      color: #1e3a29;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    .voice-tab-box {
+      text-align: center;
+      padding: 10px 4px 6px 4px;
+    }
+    .voice-main-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 24px 16px;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+      transition: all 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .voice-main-btn:active {
+      transform: scale(0.98);
+    }
+    .voice-main-btn.recording {
+      background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+      animation: pulse-recording 1.2s infinite !important;
+    }
+    @keyframes pulse-recording {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.65); }
+      70% { box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .voice-status-box {
+      margin-top: 14px;
+      padding: 10px 14px;
+      background: #f4f8f5;
+      border: 1px solid #d3e5d8;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #274b35;
+      min-height: 22px;
+      text-align: center;
+    }
+    .voice-guide {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      color: #475569;
+      line-height: 1.6;
+      text-align: left;
+    }
+
+    .modal-overlay { 
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100vw; 
+      height: 100vh; 
+      background: rgba(10, 26, 16, 0.75); 
+      backdrop-filter: blur(6px); 
+      z-index: 9999; 
+      overflow-y: scroll; 
+      -webkit-overflow-scrolling: touch; 
+      padding: 16px; 
+      box-sizing: border-box; 
+    }
+    .modal-box { 
+      background: #ffffff; 
+      border-radius: 18px; 
+      padding: 22px; 
+      width: 100%; 
+      max-width: 440px; 
+      box-shadow: 0 16px 36px rgba(0,0,0,0.35); 
+      margin: 10px auto; 
+      margin-bottom: 240px; 
+    }
+    .modal-header { 
+      font-size: 1.15rem; 
+      font-weight: 800; 
+      color: #15803d; 
+      margin-bottom: 12px; 
+      text-align: center; 
+    }
+    .pending-info { 
+      background: #f4f8f5; 
+      border: 1px solid #d3e5d8; 
+      border-radius: 10px; 
+      padding: 12px; 
+      font-size: 0.88rem; 
+      margin-bottom: 14px; 
+      line-height: 1.6; 
+      color: #2d4a36; 
+    }
+
+    .file-badge { 
+      display: inline-block; 
+      background: #e0f2fe; 
+      color: #0369a1; 
+      padding: 6px 12px; 
+      border-radius: 6px; 
+      font-size: 0.85rem; 
+      text-decoration: underline; 
+      font-weight: bold; 
+    }
+
+    .loading-overlay { 
+      display: none; 
+      position: fixed; 
+      top: 0; left: 0; width: 100%; height: 100%; 
+      background: rgba(10, 26, 16, 0.6); 
+      backdrop-filter: blur(5px); 
+      z-index: 100000; 
+      justify-content: center; 
+      align-items: center; 
+    }
+    .loading-box { 
+      background: #ffffff; 
+      padding: 24px 32px; 
+      border-radius: 16px; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 14px; 
+      box-shadow: 0 12px 28px rgba(0,0,0,0.25); 
+      max-width: 80%; 
+      text-align: center; 
+    }
+    .spinner { 
+      width: 42px; 
+      height: 42px; 
+      border: 4px solid #e2ede5; 
+      border-top: 4px solid #2e7d32; 
+      border-radius: 50%; 
+      animation: spin 0.8s linear infinite; 
+    }
+    @keyframes spin { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(360deg); } 
+    }
+    .loading-text { 
+      font-size: 0.95rem; 
+      font-weight: 700; 
+      color: #1e3a29; 
+    }
+
+    .toast { 
+      display: none; 
+      position: fixed; 
+      top: 24px; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      background: #1b5e20; 
+      color: #fff; 
+      padding: 12px 24px; 
+      border-radius: 30px; 
+      font-size: 0.92rem; 
+      font-weight: 700; 
+      z-index: 100001; 
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25); 
+      text-align: center; 
+      max-width: 90%; 
+    }
+  </style>
+
+  <!-- ======================================================== -->
+  <!-- ★ GAS通信エミュレータ（外部GitHubからGAS関数を動かすエンジン） -->
+  <!-- ======================================================== -->
+  <script>
+    const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxR7qDwQbfxlK0Gyxu4xQMS4HpSVm4qDEuENIkuJq-ZmC5dsaxhR1aN2a35Qv3MD9RN/exec";
+
+    const google = {
+      script: {
+        run: new Proxy({}, {
+          get: function(target, prop) {
+            let successCb = null;
+            let failureCb = null;
+
+            const runner = {
+              withSuccessHandler: function(cb) {
+                successCb = cb;
+                return runner;
+              },
+              withFailureHandler: function(cb) {
+                failureCb = cb;
+                return runner;
+              }
+            };
+
+            return new Proxy(runner, {
+              get: function(rTarget, actionName) {
+                if (actionName in rTarget) return rTarget[actionName];
+                return async function(...args) {
+                  try {
+                    const response = await fetch(GAS_ENDPOINT_URL, {
+                      method: "POST",
+                      headers: { "Content-Type": "text/plain;charset=utf-8" },
+                      body: JSON.stringify({ action: actionName, args: args })
+                    });
+                    const json = await response.json();
+                    if (json.success) {
+                      if (successCb) successCb(json.data);
+                    } else {
+                      if (failureCb) failureCb(new Error(json.error || "GAS処理エラー"));
+                    }
+                  } catch (err) {
+                    if (failureCb) failureCb(err);
+                  }
+                };
+              }
+            });
+          }
+        })
+      }
+    };
+  </script>
+</head>
+<body>
+
+  <!-- 起動スプラッシュスクリーン -->
+  <div id="splashScreen" class="splash-screen" onclick="hideSplash()">
+    <div class="sun-rays"></div>
+    <div class="sun-glow"></div>
+    <div class="nature-ripple"></div>
+    <div class="nature-ripple"></div>
+    <div class="nature-ripple"></div>
+    
+    <div id="particleContainer"></div>
+
+    <div class="splash-content">
+      <div class="splash-logo-wrap">
+        <img src="https://i.postimg.cc/RVBr5H93/42e988e2-ac9e-4027-812d-26a259d13d5c.jpg" class="splash-logo" alt="Logo">
+      </div>
+      <div class="splash-catch">～楽しい未来を作る～</div>
+      <div class="splash-sub">AGRICULTURE &amp; WORKSPACE</div>
+    </div>
+
+    <div class="splash-skip-hint">タップでスキップ</div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div id="loadingOverlay" class="loading-overlay">
+    <div class="loading-box">
+      <div class="spinner"></div>
+      <div id="loadingText" class="loading-text">処理中...</div>
+    </div>
+  </div>
+
+  <!-- 作業者名と初期登録エリア -->
+  <div class="card">
+    <label>作業者名</label>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="userName" placeholder="名前を入力" style="margin-bottom:0;">
+      <button class="btn btn-blue" style="width:auto; padding:0 18px; margin-bottom:0; flex-shrink:0;" onclick="handleCheckUser(false)">確認</button>
+    </div>
+    <div id="fileStatus" style="font-size:0.78rem; color:#5c7e66; margin-top:6px; font-weight:600;"></div>
+
+    <div id="profileSection" style="display:none; margin-top: 16px; border-top: 1px dashed #cfe0d4; padding-top: 14px;">
+      <div class="notice">
+        <strong>【基本情報・印鑑の登録】</strong><br>
+        請求書に記載される情報です。初回のみ登録してください。
+      </div>
+
+      <label>屋号・個人事業主名 (任意)</label>
+      <input type="text" id="businessName" placeholder="屋号がない場合は空欄でOK">
+
+      <label>印鑑にする名字 (漢字) <span style="color:#dc2626;">*必須</span></label>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+        <input type="text" id="stampName" placeholder="例: 飯島" maxlength="4" style="margin-bottom:0; flex:1;" oninput="drawStampPreview()">
+        <div style="width:54px; height:54px; border:1.5px dashed #9cb6a3; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#ffffff; flex-shrink:0;">
+          <canvas id="stampCanvas" width="100" height="100" style="width:46px; height:46px; display:none;"></canvas>
+          <span id="stampPlaceholder" style="font-size:0.75rem; color:#8faaa0; font-weight:600;">印影</span>
+        </div>
+      </div>
+
+      <label>住所 <span style="color:#dc2626;">*必須</span></label>
+      <input type="text" id="address" placeholder="例: 愛知県岡崎市高隆寺町字茅原田3番地">
+
+      <label>携帯番号 <span style="color:#dc2626;">*必須 (数字のみ入力でOK)</span></label>
+      <input type="tel" id="phoneNumber" placeholder="例: 08069006820" maxlength="13">
+
+      <hr style="border:none; border-top:1px dashed #cfe0d4; margin: 16px 0;">
+
+      <label>銀行名 (任意)</label>
+      <input type="text" id="bankName" placeholder="口座記載が必要な場合のみ入力" oninput="onBankNameInput()">
+
+      <div id="bankSubFields" style="display:none;">
+        <label>支店名</label>
+        <input type="text" id="branchName" placeholder="例: 安城支店">
+        
+        <label>口座番号</label>
+        <input type="text" id="accountNumber" placeholder="例: 1234567">
+        
+        <label>口座名義 (全角カタカナ)</label>
+        <input type="text" id="accountHolder" placeholder="例: イイジマ リョウ">
+      </div>
+
+      <button class="btn btn-green" onclick="handleSaveProfile()">情報を保存して開始</button>
+    </div>
+
+    <button id="btnEditProfile" class="btn btn-sub" style="display:none; margin-top:8px;" onclick="toggleProfileEdit()">⚙ 登録情報の確認・修正</button>
+  </div>
+
+  <!-- 作業管理エリア -->
+  <div id="mainOpsArea" style="display:none;">
+    <div class="card">
+      <h2>作業の記録</h2>
+
+      <div id="statusBanner" class="status-banner status-idle">
+        <div id="statusDot" class="status-dot dot-idle"></div>
+        <div id="statusBannerText">⚪ 現在は作業を行っていません</div>
+      </div>
+
+      <div class="tab-nav">
+        <button type="button" id="tabBtnVoice" class="tab-btn active" onclick="switchTab('voice')">
+          <span>🎙️</span> 音声で打刻
+        </button>
+        <button type="button" id="tabBtnManual" class="tab-btn" onclick="switchTab('manual')">
+          <span>📋</span> ボタン・手動選択
+        </button>
+      </div>
+
+      <!-- 【タブ 1】音声入力エリア -->
+      <div id="tabContentVoice" class="tab-content active">
+        <div class="voice-tab-box">
+          <button type="button" id="voiceMainBtn" class="voice-main-btn" onclick="toggleVoiceInput()">
+            <span id="voiceMainIcon" style="font-size:2.8rem;">🎙️</span>
+            <span id="voiceMainText" style="font-size:1.15rem; font-weight:800; letter-spacing:0.04em;">タップして話す</span>
+            <span id="voiceSubText" style="font-size:0.78rem; opacity:0.85;">「作業終了」「休憩」「打合せ」など</span>
+          </button>
+
+          <div id="voiceStatus" class="voice-status-box">ボタンを押して話しかけてください</div>
+
+          <div class="voice-guide">
+            <strong>🗣️ 音声コマンドの例：</strong><br>
+            ・<strong>「作業終了」</strong> または <strong>「あがり」</strong> ➔ 作業を終了して記録<br>
+            ・<strong>「休憩」</strong> ➔ 休憩タスクを開始<br>
+            ・<strong>「（登録した作業名）」</strong> ➔ その作業を開始（前回の作業は自動終了）
+          </div>
+        </div>
+      </div>
+
+      <!-- 【タブ 2】従来のボタン・手動登録エリア -->
+      <div id="tabContentManual" class="tab-content">
+        <label>作業分類</label>
+        <select id="categorySelect" onchange="updateTaskList()"></select>
+        
+        <label>作業名 (五十音順)</label>
+        <select id="taskSelect"></select>
+
+        <button id="btnStartTask" class="btn btn-blue" onclick="handleStartTask()">▶ この作業を開始</button>
+        <button id="btnStopTask" class="btn btn-gray" onclick="handleStopTask()">■ 現在の作業を終了</button>
+        
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <button class="btn btn-sub" style="flex:1;" onclick="toggleAddModal()">＋ 分類・作業の追加</button>
+          <button class="btn btn-sub" style="flex:1; background:#e0e7ff; color:#3730a3;" onclick="toggleManualArea()">🕒 押し忘れ・履歴編集</button>
+        </div>
+
+        <div id="addModal" style="display:none; margin-top: 14px; border-top: 1px dashed #cfe0d4; padding-top: 14px;">
+          <label>作業分類の選択</label>
+          <select id="modalCategorySelect" onchange="onModalCategoryChange()"></select>
+          
+          <div id="newCategoryInputArea" style="display:none;">
+            <label>新しい作業分類名</label>
+            <input type="text" id="newCategory" placeholder="例: 外回り">
+          </div>
+
+          <label>追加する作業名</label>
+          <input type="text" id="newTask" placeholder="例: クライアント訪問">
+          <button class="btn btn-sub" style="background:#234e32; color:#fff;" onclick="handleAddMaster()">マスタに追加保存</button>
+        </div>
+
+        <div id="manualArea" class="manual-box" style="display:none;">
+          <div style="font-weight:bold; color:#1e3a29; margin-bottom:8px;">🕒 押し忘れ勤怠の手動追加</div>
+          <div style="font-size:0.78rem; color:#666; margin-bottom:10px;">
+            ボタンを押し忘れた作業をさかのぼって記録できます（開始・終了ともに15分切り下げ）。既存の作業と重複する場合は重ならない時間のみ登録されます。
+          </div>
+
+          <label>作業日付</label>
+          <input type="date" id="manualDate">
+
+          <div style="display:flex; gap:8px;">
+            <div style="flex:1;">
+              <label>開始時刻</label>
+              <input type="time" id="manualStartTime" required>
+            </div>
+            <div style="flex:1;">
+              <label>終了時刻</label>
+              <input type="time" id="manualEndTime" required>
+            </div>
+          </div>
+
+          <label>作業分類</label>
+          <select id="manualCategorySelect" onchange="updateManualTaskList()"></select>
+
+          <label>作業名</label>
+          <select id="manualTaskSelect"></select>
+
+          <button class="btn btn-blue" onclick="handleManualAdd()">＋ この作業履歴を追加登録</button>
+
+          <hr style="border:none; border-top:1px dashed #cfe0d4; margin:16px 0;">
+
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-weight:bold; color:#1e3a29;">📋 最近の作業履歴（削除・確認）</div>
+            <button class="btn-sub" style="padding:4px 8px; font-size:0.75rem;" onclick="loadRecentLogs()">🔄 更新</button>
+          </div>
+          <div style="font-size:0.75rem; color:#888; margin-top:2px; margin-bottom:6px;">
+            削除ボタンをタップすると確認ポップアップが表示されます。
+          </div>
+
+          <div id="recentLogsContainer" style="overflow-x:auto;">
+            <table class="log-table">
+              <thead>
+                <tr>
+                  <th>日付</th>
+                  <th>作業名</th>
+                  <th>時間</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="recentLogsBody">
+                <tr><td colspan="4" style="text-align:center; color:#888;">読み込み中...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 請求書・スケジュール発行エリア -->
+    <div class="card">
+      <h2 style="color:#0f766e;">📄 請求書 ＆ スケジュール発行</h2>
+      <label>対象年月</label>
+      <input type="month" id="invoiceMonth">
+      <button class="btn btn-purple" onclick="handleGenerateInvoice()">請求書 ＆ スケジュール表を作成する</button>
+
+      <div id="invoiceResult" style="display:none; margin-top: 14px;">
+        <div id="invoiceMsg" style="font-size:0.92rem; font-weight:700; color:#15803d; margin-bottom:10px; text-align:center;"></div>
+        
+        <div class="invoice-links">
+          <a id="pdfLink" href="#" target="_blank" class="link-btn link-pdf">📥 PDFで表示・保存する</a>
+          <a id="sheetTabLink" href="#" target="_blank" class="link-btn link-sheet">📊 請求書シートを開く</a>
+          <a id="scheduleTabLink" href="#" target="_blank" class="link-btn link-schedule">📅 スケジュールシートを開く</a>
+          
+          <button id="btnOpenMailPreview" class="btn btn-green" style="margin-top:6px; background:linear-gradient(135deg, #166534 0%, #14532d 100%);" onclick="handleOpenMailPreview(false)">✉️ メールで請求書を送信する</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet-link" id="linkArea" style="display:none;">
+    <a id="mySheetUrl" href="#" target="_blank">📁 個人スプレッドシートを開く</a>
+  </div>
+
+  <!-- 手動登録の重複・調整確認用ポップアップモーダル -->
+  <div class="modal-overlay" id="overlapModal">
+    <div class="modal-box" style="text-align: center;">
+      <div class="modal-header" style="color: #d97706;">⚠️ 作業時間の重複・調整確認</div>
+      <p style="font-size:0.86rem; color:#444; margin-top:0; line-height:1.5; text-align: left;">
+        入力された時間は既存の作業と重複しています。重ならない以下の時間で登録しますか？
+      </p>
+
+      <div class="pending-info" id="overlapModalDetails" style="text-align: left;"></div>
+
+      <button id="btnConfirmOverlapAdd" class="btn btn-green" onclick="handleCommitOverlapSlots()">調整した時間で登録する</button>
+      <button class="btn btn-gray" onclick="closeOverlapModal()">キャンセル</button>
+    </div>
+  </div>
+
+  <!-- 手動登録の完全重複・登録不可ポップアップモーダル -->
+  <div class="modal-overlay" id="blockedModal">
+    <div class="modal-box" style="text-align: center;">
+      <div class="modal-header" style="color: #dc2626;">⚠️ 作業を登録できません</div>
+      <p id="blockedModalMessage" style="font-size:0.88rem; color:#444; margin-top:0; line-height:1.6; text-align: left; background: #fef2f2; border: 1px solid #fecaca; padding: 12px; border-radius: 8px; white-space: pre-wrap;"></p>
+
+      <button class="btn btn-gray" onclick="closeBlockedModal()">閉じる</button>
+    </div>
+  </div>
+
+  <!-- 上書き確認用ポップアップモーダル -->
+  <div class="modal-overlay" id="overwriteModal">
+    <div class="modal-box" style="text-align: center;">
+      <div class="modal-header" style="color: #d97706;">⚠️ 請求書の上書き確認</div>
+      <p id="overwriteConfirmText" style="font-size:0.88rem; color:#444; margin-top:0; line-height:1.6; white-space: pre-wrap; text-align: left; background: #fffbeb; border: 1px solid #fef3c7; padding: 12px; border-radius: 8px;">
+        すでに請求書を出力しており、前回の請求書を上書きしますがよろしいですか？
+      </p>
+
+      <button class="btn btn-green" onclick="confirmOverwriteAndProceed()">上書きして続ける</button>
+      <button class="btn btn-gray" onclick="closeOverwriteModal()">キャンセル</button>
+    </div>
+  </div>
+
+  <!-- 削除確認用ポップアップモーダル -->
+  <div class="modal-overlay" id="deleteConfirmModal">
+    <div class="modal-box" style="text-align: center;">
+      <div class="modal-header" style="color: #dc2626;">🗑️ 作業履歴の削除確認</div>
+      <p style="font-size:0.86rem; color:#555; margin-top:0; line-height:1.5;">
+        以下の作業履歴を本当に削除しますか？<br>
+        <span style="color:#b91c1c; font-size:0.78rem;">※削除すると復元できません。請求書やスケジュール表からも消去されます。</span>
+      </p>
+
+      <div class="pending-info" id="deleteTargetDetails" style="text-align: left;"></div>
+
+      <button id="btnExecuteDelete" class="btn btn-red" onclick="handleConfirmDelete()">🗑️ この履歴を削除する</button>
+      <button class="btn btn-gray" onclick="closeDeleteConfirmModal()">キャンセル</button>
+    </div>
+  </div>
+
+  <!-- 送信前メール確認用ポップアップモーダル -->
+  <div class="modal-overlay" id="mailModal">
+    <div class="modal-box" id="mailModalBox">
+      <div class="modal-header">✉️ 送信前のメール確認・編集</div>
+      <p style="font-size:0.8rem; color:#666; margin-top:0; line-height:1.5; text-align:center;">
+        送信内容を直接書き換えて修正できます。<br>内容を確認して送信ボタンを押してください。
+      </p>
+
+      <label style="font-size:0.82rem; margin-bottom:4px;">宛先アドレス</label>
+      <input type="email" id="editMailTo" style="padding:10px; font-size:0.92rem; margin-bottom:10px;">
+
+      <label style="font-size:0.82rem; margin-bottom:4px;">件名</label>
+      <input type="text" id="editMailSubject" style="padding:10px; font-size:0.92rem; margin-bottom:10px;">
+
+      <label style="font-size:0.82rem; margin-bottom:4px;">添付ファイル (自動添付)</label>
+      <div style="margin-bottom:10px;">
+        <a id="previewFileLink" href="#" target="_blank" class="file-badge"></a>
+        <div style="font-size:0.75rem; color:#666; margin-top:4px;">
+          ※ 請求書・スケジュール・作業ログの3シートが入ったExcelです。タップで事前に確認可能。
+        </div>
+      </div>
+
+      <label style="font-size:0.82rem; margin-bottom:4px;">本文</label>
+      <textarea id="editMailBody" rows="6" style="padding:10px; font-size:0.88rem; line-height:1.5; margin-bottom:14px;"></textarea>
+
+      <button id="btnSendDirect" class="btn btn-green" onclick="handleExecuteSend()">✉️ この内容でメールを送信する</button>
+      <button class="btn btn-gray" onclick="closeMailModal()">閉じる</button>
+
+      <div style="margin-top:16px; padding-top:12px; border-top:1px dashed #cfe0d4; text-align:center;">
+        <div style="font-size:0.75rem; color:#888; margin-bottom:6px;">
+          ※うまく送信できない場合は、事前に上のExcelを保存したうえで以下から手動送信してください。
+        </div>
+        <a id="fallbackGmailLink" href="#" class="link-btn" style="background:#ea4335; color:#fff; font-size:0.82rem; padding:8px;">
+          📨 Gmailアプリを開いて手動送信する
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 未終了モーダル -->
+  <div class="modal-overlay" id="pendingModal">
+    <div class="modal-box">
+      <div class="modal-header" style="color:#dc2626;">⚠️ 前回の作業が未終了です</div>
+      <p style="font-size:0.86rem; color:#555; margin-top:0; line-height:1.5;">
+        前回の作業終了ボタンが押されていません。<br>前回の終了時刻を入力してください。
+      </p>
+
+      <div class="pending-info" id="pendingDetails"></div>
+
+      <label>前回の終了時刻</label>
+      <input type="time" id="resolvedEndTime" required>
+
+      <button class="btn btn-green" onclick="handleResolveAndStart()">前回の終了を記録して開始</button>
+      <button class="btn btn-gray" onclick="closePendingModal()">キャンセル</button>
+    </div>
+  </div>
+
+  <script>
+    let masterData = {};
+    let pendingTaskCache = null;
+    let toastTimer = null;
+    let isSplashShowing = true;
+    let preparedMailData = null;
+    let targetDeleteLog = null;
+    let pendingOverlapData = null;
+    let detectedEmail = '';
+
+    let recognition = null;
+    let isRecording = false;
+
+    function switchTab(tabName) {
+      const btnVoice = document.getElementById('tabBtnVoice');
+      const btnManual = document.getElementById('tabBtnManual');
+      const contentVoice = document.getElementById('tabContentVoice');
+      const contentManual = document.getElementById('tabContentManual');
+
+      if (tabName === 'voice') {
+        btnVoice.classList.add('active');
+        btnManual.classList.remove('active');
+        contentVoice.classList.add('active');
+        contentManual.classList.remove('active');
+      } else {
+        btnManual.classList.add('active');
+        btnVoice.classList.remove('active');
+        contentManual.classList.add('active');
+        contentVoice.classList.remove('active');
+      }
+    }
+
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("お使いのブラウザは音声入力に対応していません。Safariで開いてください。");
+        return null;
+      }
+      const recog = new SpeechRecognition();
+      recog.lang = 'ja-JP';
+      recog.interimResults = false;
+      recog.maxAlternatives = 1;
+
+      recog.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('voiceStatus').innerText = `聞き取り完了: 「${transcript}」`;
+        stopRecordingUI();
+        sendVoiceToGAS(transcript);
+      };
+
+      recog.onerror = function(event) {
+        stopRecordingUI();
+        let msg = "音声を認識できませんでした。";
+        if (event.error === 'not-allowed') {
+          msg = "マイクの使用が許可されていません。Safariの設定でマイクを許可してください。";
+        }
+        document.getElementById('voiceStatus').innerText = msg;
+        speakText(msg);
+      };
+
+      recog.onend = function() {
+        if (isRecording) stopRecordingUI();
+      };
+
+      return recog;
+    }
+
+    function toggleVoiceInput() {
+      if (!recognition) {
+        recognition = initSpeechRecognition();
+        if (!recognition) return;
+      }
+
+      if (isRecording) {
+        recognition.stop();
+        stopRecordingUI();
+      } else {
+        try {
+          recognition.start();
+          startRecordingUI();
+        } catch (e) {
+          console.warn("Recognition start warning:", e);
+        }
+      }
+    }
+
+    function startRecordingUI() {
+      isRecording = true;
+      const btn = document.getElementById('voiceMainBtn');
+      btn.classList.add('recording');
+      document.getElementById('voiceMainText').innerText = "お話しください...";
+      document.getElementById('voiceStatus').innerText = "🎙️ 音声を待機中（お話しください）...";
+    }
+
+    function stopRecordingUI() {
+      isRecording = false;
+      const btn = document.getElementById('voiceMainBtn');
+      btn.classList.remove('recording');
+      document.getElementById('voiceMainText').innerText = "タップして話す";
+    }
+
+    function sendVoiceToGAS(spokenText) {
+      const name = getName();
+      if (!name) return;
+
+      showLoading('音声コマンドを処理中...');
+      google.script.run
+        .withSuccessHandler(function(responseMessage) {
+          hideLoading();
+          showToast(responseMessage);
+          document.getElementById('voiceStatus').innerText = responseMessage;
+          speakText(responseMessage);
+
+          checkUser(name, true);
+          if (document.getElementById('manualArea').style.display !== 'none') {
+            loadRecentLogs();
+          }
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          const errMsg = '打刻エラー: ' + err.message;
+          showToast(errMsg, true);
+          speakText("打刻エラーが発生しました");
+        })
+        .handleVoiceDispatch(name, spokenText, 'normal');
+    }
+
+    function speakText(text) {
+      if (!window.speechSynthesis) return;
+      window.speechSynthesis.cancel();
+      const uttr = new SpeechSynthesisUtterance(text);
+      uttr.lang = 'ja-JP';
+      uttr.rate = 1.0;
+      window.speechSynthesis.speak(uttr);
+    }
+
+    function saveStoredName(name) {
+      try { localStorage.setItem('work_user_name', name); } catch(e) {}
+      try { document.cookie = "work_user_name=" + encodeURIComponent(name) + "; path=/; max-age=" + (60*60*24*365); } catch(e) {}
+    }
+
+    function getStoredName() {
+      try {
+        const local = localStorage.getItem('work_user_name');
+        if (local) return local.trim();
+      } catch(e) {}
+      try {
+        const match = document.cookie.match(/(^|;)\s*work_user_name=([^;]+)/);
+        if (match) return decodeURIComponent(match[2]).trim();
+      } catch(e) {}
+      return '';
+    }
+
+    function createNatureParticles() {
+      const container = document.getElementById('particleContainer');
+      if (!container) return;
+      
+      for (let i = 0; i < 22; i++) {
+        const dew = document.createElement('div');
+        dew.className = 'dew-particle';
+        const size = Math.random() * 5 + 2.5;
+        dew.style.width = size + 'px';
+        dew.style.height = size + 'px';
+        dew.style.left = Math.random() * 100 + '%';
+        dew.style.animationDuration = (Math.random() * 2.8 + 2.2) + 's';
+        dew.style.animationDelay = (Math.random() * 2.0) + 's';
+        container.appendChild(dew);
+      }
+
+      for (let j = 0; j < 12; j++) {
+        const leaf = document.createElement('div');
+        leaf.className = 'leaf-particle';
+        leaf.style.left = Math.random() * 100 + '%';
+        leaf.style.animationDuration = (Math.random() * 2.5 + 3.0) + 's';
+        leaf.style.animationDelay = (Math.random() * 2.5) + 's';
+        container.appendChild(leaf);
+      }
+    }
+
+    function hideSplash() {
+      const splash = document.getElementById('splashScreen');
+      if (splash && !splash.classList.contains('fade-out')) {
+        splash.classList.add('fade-out');
+        isSplashShowing = false;
+        setTimeout(() => {
+          splash.style.display = 'none';
+        }, 1100);
+      }
+    }
+
+    function showLoading(msg) {
+      document.getElementById('loadingText').innerText = msg || '処理中...';
+      document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    function showToast(msg, isError) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.style.background = isError ? '#b91c1c' : '#1b5e20';
+      toast.style.display = 'block';
+
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.style.display = 'none';
+      }, 4000);
+    }
+
+    function updateVisualViewport() {
+      const modal = document.getElementById('mailModal');
+      if (modal && modal.style.display === 'block') {
+        if (window.visualViewport) {
+          modal.style.height = window.visualViewport.height + 'px';
+          modal.style.top = window.visualViewport.offsetTop + 'px';
+        }
+      }
+    }
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateVisualViewport);
+      window.visualViewport.addEventListener('scroll', updateVisualViewport);
+    }
+
+    function bringElementToKeyBoardTop(elem) {
+      setTimeout(() => {
+        updateVisualViewport();
+        elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 350);
+    }
+
+    function updateWorkingStatus(currentTask) {
+      const banner = document.getElementById('statusBanner');
+      const dot = document.getElementById('statusDot');
+      const text = document.getElementById('statusBannerText');
+      const btnStart = document.getElementById('btnStartTask');
+      const btnStop = document.getElementById('btnStopTask');
+
+      if (currentTask) {
+        banner.className = 'status-banner status-working';
+        dot.className = 'status-dot dot-working';
+        text.innerHTML = `<strong>🟢 作業中:</strong> 【${currentTask.category}】${currentTask.taskName} (${currentTask.startTime}〜)`;
+        btnStart.disabled = true;
+        btnStart.innerText = '現在作業中...';
+        btnStop.className = 'btn btn-red';
+        btnStop.innerText = '■ 現在の作業を終了する';
+      } else {
+        banner.className = 'status-banner status-idle';
+        dot.className = 'status-dot dot-idle';
+        text.innerText = '⚪ 現在は作業を行っていません';
+        btnStart.disabled = false;
+        btnStart.innerText = '▶ この作業を開始';
+        btnStop.className = 'btn btn-gray';
+        btnStop.innerText = '■ 現在の作業を終了';
+      }
+    }
+
+    function onBankNameInput() {
+      const bName = document.getElementById('bankName').value.trim();
+      const subFields = document.getElementById('bankSubFields');
+      if (bName !== '') {
+        subFields.style.display = 'block';
+      } else {
+        subFields.style.display = 'none';
+      }
+    }
+
+    function drawStampPreview() {
+      const stampName = document.getElementById('stampName').value.trim();
+      const canvas = document.getElementById('stampCanvas');
+      const placeholder = document.getElementById('stampPlaceholder');
+
+      if (!stampName) {
+        canvas.style.display = 'none';
+        placeholder.style.display = 'block';
+        return;
+      }
+
+      canvas.style.display = 'block';
+      placeholder.style.display = 'none';
+
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, 100, 100);
+
+      ctx.strokeStyle = '#d32f2f';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(50, 50, 44, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = '#d32f2f';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      const chars = stampName.split('');
+      if (chars.length === 1) {
+        ctx.font = 'bold 44px "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif';
+        ctx.fillText(chars[0], 50, 50);
+      } else if (chars.length === 2) {
+        ctx.font = 'bold 36px "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif';
+        ctx.fillText(chars[0], 50, 32);
+        ctx.fillText(chars[1], 50, 68);
+      } else if (chars.length === 3) {
+        ctx.font = 'bold 26px "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif';
+        ctx.fillText(chars[0], 50, 24);
+        ctx.fillText(chars[1], 50, 50);
+        ctx.fillText(chars[2], 50, 76);
+      } else {
+        ctx.font = 'bold 20px "Hiragino Mincho ProN", "Yu Mincho", "MS Mincho", serif';
+        ctx.fillText(chars[0], 50, 20);
+        ctx.fillText(chars[1], 50, 40);
+        ctx.fillText(chars[2], 50, 60);
+        ctx.fillText(chars[3], 50, 80);
+      }
+    }
+
+    function applyUserStatus(status, name) {
+      if (name) {
+        document.getElementById('userName').value = name;
+        saveStoredName(name);
+      }
+
+      if (status.hasProfile) {
+        document.getElementById('profileSection').style.display = 'none';
+        document.getElementById('btnEditProfile').style.display = 'block';
+        document.getElementById('mainOpsArea').style.display = 'block';
+
+        if (status.emailUsed) {
+          document.getElementById('fileStatus').innerText = `✅ Googleアカウント（${status.emailUsed}）で接続中`;
+        } else {
+          document.getElementById('fileStatus').innerText = '✅ 基本情報登録済み・接続中';
+        }
+
+        document.getElementById('businessName').value = status.businessName || '';
+        document.getElementById('stampName').value = status.stampName || '';
+        document.getElementById('address').value = status.address || '';
+        document.getElementById('phoneNumber').value = status.phoneNumber || '';
+        document.getElementById('bankName').value = status.bankName || '';
+        document.getElementById('branchName').value = status.branchName || '';
+        document.getElementById('accountNumber').value = status.accountNumber || '';
+        document.getElementById('accountHolder').value = status.accountHolder || '';
+
+        onBankNameInput();
+        drawStampPreview();
+        updateWorkingStatus(status.currentTask);
+
+        if (status.url) {
+          document.getElementById('mySheetUrl').href = status.url;
+          document.getElementById('linkArea').style.display = 'block';
+        }
+      } else {
+        document.getElementById('profileSection').style.display = 'block';
+        document.getElementById('btnEditProfile').style.display = 'none';
+        document.getElementById('mainOpsArea').style.display = 'none';
+        document.getElementById('linkArea').style.display = 'none';
+        document.getElementById('fileStatus').innerText = '⚠️ 請求書発行用の基本情報を登録してください';
+      }
+    }
+
+    window.onload = function() {
+      createNatureParticles();
+      setTimeout(hideSplash, 5000);
+
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      document.getElementById('invoiceMonth').value = `${y}-${m}`;
+      document.getElementById('manualDate').value = `${y}-${m}-${d}`;
+
+      google.script.run
+        .withSuccessHandler(function(data) {
+          masterData = data.categories;
+          populateCategories();
+
+          detectedEmail = data.userEmail || '';
+
+          if (data.autoUser && data.autoUser.registered) {
+            applyUserStatus(data.autoUser, data.autoUser.name);
+            return;
+          }
+
+          const savedName = getStoredName();
+          if (savedName) {
+            document.getElementById('userName').value = savedName;
+            checkUser(savedName, true);
+          } else {
+            document.getElementById('fileStatus').innerText = 'お名前を入力して確認ボタンを押してください';
+          }
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('fileStatus').innerText = '接続エラー: ' + err.message;
+        })
+        .getInitialData();
+
+      const inputs = document.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+          bringElementToKeyBoardTop(this);
+        });
+      });
+
+      const phoneInput = document.getElementById('phoneNumber');
+      phoneInput.addEventListener('input', function() {
+        let val = this.value.replace(/[^\d]/g, '');
+        if (val.length > 11) val = val.slice(0, 11);
+
+        if (val.length > 7) {
+          this.value = val.replace(/(\d{3})(\d{4})(\d{1,4})/, '$1-$2-$3');
+        } else if (val.length > 3) {
+          this.value = val.replace(/(\d{3})(\d{1,4})/, '$1-$2');
+        } else {
+          this.value = val;
+        }
+      });
+    };
+
+    function handleCheckUser(isSilent) {
+      const name = document.getElementById('userName').value.trim();
+      if (!name) { alert('名前を入力してください'); return; }
+      saveStoredName(name);
+      checkUser(name, isSilent);
+    }
+
+    function checkUser(name, isSilent) {
+      if (!isSilent) showLoading('ユーザー情報を確認中...');
+      google.script.run
+        .withSuccessHandler(function(status) {
+          hideLoading();
+          applyUserStatus(status, name);
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          if (!isSilent) alert('エラーが発生しました: ' + err.message);
+        })
+        .checkUserStatus(name);
+    }
+
+    function toggleProfileEdit() {
+      const sec = document.getElementById('profileSection');
+      const isOpening = (sec.style.display === 'none');
+      sec.style.display = isOpening ? 'block' : 'none';
+      if (isOpening) {
+        onBankNameInput();
+        drawStampPreview();
+        bringElementToKeyBoardTop(sec);
+      }
+    }
+
+    function handleSaveProfile() {
+      const name = document.getElementById('userName').value.trim();
+      const bName = document.getElementById('businessName').value.trim();
+      const sName = document.getElementById('stampName').value.trim();
+      const addr = document.getElementById('address').value.trim();
+      const phone = document.getElementById('phoneNumber').value.trim();
+      const bank = document.getElementById('bankName').value.trim();
+      const branch = document.getElementById('branchName').value.trim();
+      const accNum = document.getElementById('accountNumber').value.trim();
+      const accHolder = document.getElementById('accountHolder').value.trim();
+
+      if (!name || !sName || !addr || !phone) {
+        alert('必須項目（印鑑名字・住所・携帯番号）を入力してください');
+        return;
+      }
+
+      drawStampPreview();
+      const canvas = document.getElementById('stampCanvas');
+      const stampBase64 = canvas.toDataURL('image/png');
+
+      showLoading('基本情報と印影を保存中...');
+      google.script.run
+        .withSuccessHandler(function(res) {
+          hideLoading();
+          showToast('✅ 基本情報と印鑑を登録しました');
+          saveStoredName(name);
+          checkUser(name, false);
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          alert('エラー: ' + err.message);
+        })
+        .saveUserProfile(name, bank, branch, accNum, accHolder, addr, bName, phone, sName, stampBase64);
+    }
+
+    function getName() {
+      const name = document.getElementById('userName').value.trim();
+      if (!name) { alert('名前を入力してください'); return null; }
+      return name;
+    }
+
+    function populateCategories() {
+      const catSelect = document.getElementById('categorySelect');
+      const modalCatSelect = document.getElementById('modalCategorySelect');
+      const manualCatSelect = document.getElementById('manualCategorySelect');
+      
+      const currentSelected = catSelect.value;
+      catSelect.innerHTML = '';
+      modalCatSelect.innerHTML = '';
+      manualCatSelect.innerHTML = '';
+
+      for (let cat in masterData) {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        catSelect.appendChild(opt);
+
+        const modalOpt = document.createElement('option');
+        modalOpt.value = cat;
+        modalOpt.textContent = cat;
+        modalCatSelect.appendChild(modalOpt);
+
+        const manualOpt = document.createElement('option');
+        manualOpt.value = cat;
+        manualOpt.textContent = cat;
+        manualCatSelect.appendChild(manualOpt);
+      }
+
+      const newOpt = document.createElement('option');
+      newOpt.value = '__NEW__';
+      newOpt.textContent = '＋ 新しい作業分類を直接入力...';
+      modalCatSelect.appendChild(newOpt);
+
+      if (currentSelected && masterData[currentSelected]) {
+        catSelect.value = currentSelected;
+        manualCatSelect.value = currentSelected;
+      }
+
+      updateTaskList();
+      updateManualTaskList();
+      onModalCategoryChange();
+    }
+
+    function updateTaskList() {
+      const cat = document.getElementById('categorySelect').value;
+      const taskSelect = document.getElementById('taskSelect');
+      taskSelect.innerHTML = '';
+
+      if (masterData[cat]) {
+        const sortedTasks = [...masterData[cat]].sort((a, b) => a.localeCompare(b, 'ja'));
+        sortedTasks.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t;
+          opt.textContent = t;
+          taskSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function updateManualTaskList() {
+      const cat = document.getElementById('manualCategorySelect').value;
+      const taskSelect = document.getElementById('manualTaskSelect');
+      taskSelect.innerHTML = '';
+
+      if (masterData[cat]) {
+        const sortedTasks = [...masterData[cat]].sort((a, b) => a.localeCompare(b, 'ja'));
+        sortedTasks.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t;
+          opt.textContent = t;
+          taskSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function onModalCategoryChange() {
+      const val = document.getElementById('modalCategorySelect').value;
+      const inputArea = document.getElementById('newCategoryInputArea');
+      if (val === '__NEW__') {
+        inputArea.style.display = 'block';
+        bringElementToKeyBoardTop(document.getElementById('newCategory'));
+      } else {
+        inputArea.style.display = 'none';
+      }
+    }
+
+    function handleStartTask() {
+      const name = getName();
+      if (!name) return;
+      const cat = document.getElementById('categorySelect').value;
+      const task = document.getElementById('taskSelect').value;
+      if (!cat || !task) { alert('作業を選択してください'); return; }
+
+      showLoading('作業状態を確認中...');
+      google.script.run
+        .withSuccessHandler(function(res) {
+          hideLoading();
+          if (res.status === 'PENDING_EXISTS') {
+            pendingTaskCache = {
+              name: name,
+              newCat: cat,
+              newTask: task
+            };
+
+            const p = res.pendingData;
+            document.getElementById('pendingDetails').innerHTML = `
+              <strong>作業日:</strong> ${p.date}<br>
+              <strong>作業分類:</strong> ${p.category}<br>
+              <strong>作業名:</strong> ${p.taskName}<br>
+              <strong>開始時刻:</strong> ${p.startTime}
+            `;
+            document.getElementById('resolvedEndTime').value = '';
+            document.getElementById('pendingModal').style.display = 'block';
+          } else {
+            showToast(`▶ ${res.message}`);
+            updateWorkingStatus(res.currentTask);
+            if (document.getElementById('manualArea').style.display !== 'none') {
+              loadRecentLogs();
+            }
+          }
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          alert('エラー: ' + err.message);
+        })
+        .startTask(name, cat, task);
+    }
+
+    function handleResolveAndStart() {
+      const endTime = document.getElementById('resolvedEndTime').value;
+      if (!endTime) {
+        alert('前回の終了時刻を選択してください');
+        return;
+      }
+
+      showLoading('前回の終了と新しい作業を記録中...');
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          hideLoading();
+          if (res.status === 'SUCCESS') {
+            closePendingModal();
+            showToast(`▶ ${res.message}`);
+            updateWorkingStatus(res.currentTask);
+            if (document.getElementById('manualArea').style.display !== 'none') {
+              loadRecentLogs();
+            }
+          } else {
+            showToast(res.message, true);
+            alert(res.message);
+          }
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          alert('エラー: ' + err.message);
+        })
+        .resolvePendingAndStart(pendingTaskCache.name, endTime, pendingTaskCache.newCat, pendingTaskCache.newTask);
+    }
+
+    function closePendingModal() {
+      document.getElementById('pendingModal').style.display = 'none';
+    }
+
+    function handleStopTask() {
+      const name = getName();
+      if (!name) return;
+
+      showLoading('作業終了を記録中...');
+      google.script.run
+        .withSuccessHandler(function(res) {
+          hideLoading();
+          if (res.success) {
+            updateWorkingStatus(null);
+            if (res.canceled) {
+              showToast(`⚠️ ${res.message}`, true);
+              alert(res.message);
+            } else {
+              showToast(`■ ${res.message}`);
+            }
+            if (document.getElementById('manualArea').style.display !== 'none') {
+              loadRecentLogs();
+            }
+          } else {
+            showToast(res.message, true);
+            alert(res.message);
+          }
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          alert('エラー: ' + err.message);
+        })
+        .stopTask(name);
+    }
+
+    function toggleAddModal() {
+      const modal = document.getElementById('addModal');
+      const isOpening = (modal.style.display === 'none');
+      modal.style.display = isOpening ? 'block' : 'none';
+
+      if (isOpening) {
+        const currentCat = document.getElementById('categorySelect').value;
+        if (currentCat) {
+          document.getElementById('modalCategorySelect').value = currentCat;
+        }
+        onModalCategoryChange();
+        bringElementToKeyBoardTop(modal);
+      }
+    }
+
+    function handleAddMaster() {
+      const modalCatVal = document.getElementById('modalCategorySelect').value;
+      let cat = '';
+
+      if (modalCatVal === '__NEW__') {
+        cat = document.getElementById('newCategory').value.trim();
+        if (!cat) { alert('新しい作業分類名を入力してください'); return; }
+      } else {
+        cat = modalCatVal;
+      }
+
+      const task = document.getElementById('newTask').value.trim();
+      if (!task) { alert('追加する作業名を入力してください'); return; }
+
+      showLoading('マスタに追加保存中...');
+      google.script.run
+        .withSuccessHandler(function(data) {
+          hideLoading();
+          masterData = data.categories;
+          populateCategories();
+
+          document.getElementById('categorySelect').value = cat;
+          updateTaskList();
+          document.getElementById('taskSelect').value = task;
+
+          document.getElementById('newCategory').value = '';
+          document.getElementById('newTask').value = '';
+          toggleAddModal();
+          showToast(`✅ 「${cat}」に「${task}」を追加しました`);
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          alert('エラー: ' + err.message);
+        })
+        .addNewMaster(cat, task);
+    }
+
+    function toggleManualArea() {
+      const area = document.getElementById('manualArea');
+      const isOpening = (area.style.display === 'none');
+      area.style.display = isOpening ? 'block' : 'none';
+
+      if (isOpening) {
+        updateManualTaskList();
+        loadRecentLogs();
+        bringElementToKeyBoardTop(area);
+      }
+    }
+
+    function handleManualAdd() {
+      const name = getName();
+      if (!name) return;
+
+      const dateVal = document.getElementById('manualDate').value;
+      const startVal = document.getElementById('manualStartTime').value;
+      const endVal = document.getElementById('manualEndTime').value;
+      const catVal = document.getElementById('manualCategorySelect').value;
+      const taskVal = document.getElementById('manualTaskSelect').value;
+
+      if (!dateVal || !startVal || !endVal || !catVal || !taskVal) {
+        alert('日付・開始時刻・終了時刻・作業分類・作業名をすべて入力してください');
+        return;
+      }
+
+      showLoading('作業履歴の重複を確認中...');
+      google.script.run
+        .withSuccessHandler(function(res) {
+          hideLoading();
+          if (res.status === 'SUCCESS') {
+            showToast('✅ ' + res.message);
+            loadRecentLogs();
+          } else if (res.status === 'BLOCKED') {
+            document.getElementById('blockedModalMessage').innerText = res.message;
+            document.getElementById('blockedModal').style.display = 'block';
+          } else if (res.status === 'CONFIRM_REQUIRED') {
+            pendingOverlapData = res;
+
+            let html = `<strong>【登録予定の作業時間】</strong><br>`;
+            res.slots.forEach(slot => {
+              html += `・<strong>${slot.startStr}〜${slot.endStr}</strong> (${slot.duration}分)<br>`;
+            });
+
+            html += `<br><span style="color:#b45309; font-size:0.8rem;">※ 以下の既存作業と重複したため除外されました：<br>`;
+            res.overlaps.forEach(o => {
+              html += `・${o}<br>`;
+            });
+            html += `</span>`;
+
+            if (res.discarded && res.discarded.length > 0) {
+              html += `<br><span style="color:#b91c1c; font-size:0.78rem;">※ 隙間時間（${res.discarded.map(d => `${d.startStr}〜${d.endStr}`).join(', ')}）は15分未満のため除外されました。</span>`;
+            }
+
+            document.getElementById('overlapModalDetails').innerHTML = html;
+            document.getElementById('overlapModal').style.display = 'block';
+          } else {
+            showToast(res.message, true);
+            alert(res.message);
+          }
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          alert('エラー: ' + err.message);
+        })
+        .checkAndAddManualTask(name, dateVal, catVal, taskVal, startVal, endVal);
+    }
+
+    function handleCommitOverlapSlots() {
+      if (!pendingOverlapData) return;
+      const data = pendingOverlapData;
+      closeOverlapModal();
+
+      showLoading('調整した時間で作業履歴を登録中...');
+      google.script.run
+        .withSuccessHandler(function(res) {
+          hideLoading();
+          if (res.success) {
+            showToast('✅ ' + res.message);
+            loadRecentLogs();
+          } else {
+            showToast(res.message, true);
+            alert(res.message);
+          }
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          alert('登録エラー: ' + err.message);
+        })
+        .commitManualTaskSlots(data.params.name, data.params.dateInput, data.params.category, data.params.taskName, data.slots);
+    }
+
+    function closeOverlapModal() {
+      document.getElementById('overlapModal').style.display = 'none';
+      pendingOverlapData = null;
+    }
+
+    function closeBlockedModal() {
+      document.getElementById('blockedModal').style.display = 'none';
+    }
+
+    function loadRecentLogs() {
+      const name = getName();
+      if (!name) return;
+
+      const tbody = document.getElementById('recentLogsBody');
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">読み込み中...</td></tr>';
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res.success && res.logs.length > 0) {
+            tbody.innerHTML = '';
+            res.logs.forEach(item => {
+              const tr = document.createElement('tr');
+              
+              const tdDate = document.createElement('td');
+              tdDate.innerHTML = `<strong>${item.date.slice(5)}</strong>`;
+              
+              const tdTask = document.createElement('td');
+              tdTask.innerHTML = `【${item.category}】<br>${item.taskName}`;
+              
+              const tdTime = document.createElement('td');
+              tdTime.textContent = `${item.startTime}〜${item.endTime}`;
+              
+              const tdAction = document.createElement('td');
+              const btn = document.createElement('button');
+              btn.className = 'btn-del';
+              btn.textContent = '削除';
+
+              btn.onclick = function() {
+                openDeleteConfirmModal(item);
+              };
+
+              tdAction.appendChild(btn);
+              tr.appendChild(tdDate);
+              tr.appendChild(tdTask);
+              tr.appendChild(tdTime);
+              tr.appendChild(tdAction);
+              tbody.appendChild(tr);
+            });
+          } else {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#888;">履歴がありません</td></tr>';
+          }
+        })
+        .withFailureHandler(function(err) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#f87171;">取得失敗: ' + err.message + '</td></tr>';
+        })
+        .getRecentLogs(name);
+    }
+
+    function openDeleteConfirmModal(item) {
+      targetDeleteLog = item;
+      const details = document.getElementById('deleteTargetDetails');
+      details.innerHTML = `
+        <strong>作業日:</strong> ${item.date}<br>
+        <strong>作業名:</strong> 【${item.category}】${item.taskName}<br>
+        <strong>時間帯:</strong> ${item.startTime}〜${item.endTime} (${item.duration})
+      `;
+      document.getElementById('deleteConfirmModal').style.display = 'block';
+    }
+
+    function closeDeleteConfirmModal() {
+      document.getElementById('deleteConfirmModal').style.display = 'none';
+      targetDeleteLog = null;
+    }
+
+    function handleConfirmDelete() {
+      if (!targetDeleteLog) return;
+      const rowIndex = targetDeleteLog.rowIndex;
+      closeDeleteConfirmModal();
+
+      const name = getName();
+      if (!name) return;
+
+      showLoading('作業履歴を削除中...');
+      google.script.run
+        .withSuccessHandler(function(res) {
+          hideLoading();
+          if (res.success) {
+            showToast('🗑️ ' + res.message);
+            loadRecentLogs();
+          } else {
+            showToast(res.message, true);
+            alert(res.message);
+          }
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          showToast('削除エラー: ' + err.message, true);
+          alert('削除エラー: ' + err.message);
+        })
+        .deleteTaskLog(name, rowIndex);
+    }
+
+    function handleGenerateInvoice() {
+      const name = getName();
+      if (!name) return;
+      const monthVal = document.getElementById('invoiceMonth').value;
+      if (!monthVal) { alert('対象年月を選択してください'); return; }
+
+      document.getElementById('invoiceResult').style.display = 'none';
+      showLoading('請求書とスケジュール表を作成中...（数秒お待ちください）');
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          hideLoading();
+          if (res.success) {
+            showToast('✅ 請求書とスケジュール表が完成しました！');
+            document.getElementById('invoiceMsg').innerText = `✅ ${res.message}`;
+            document.getElementById('pdfLink').href = res.pdfUrl;
+            document.getElementById('sheetTabLink').href = res.sheetUrl;
+            document.getElementById('scheduleTabLink').href = res.scheduleUrl;
+            document.getElementById('invoiceResult').style.display = 'block';
+
+            const btnPreview = document.getElementById('btnOpenMailPreview');
+            btnPreview.disabled = false;
+            btnPreview.innerText = '✉️ メールで請求書を送信する';
+
+            bringElementToKeyBoardTop(document.getElementById('invoiceResult'));
+          } else {
+            showToast(res.message, true);
+            alert(res.message);
+          }
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          showToast('作成エラー: ' + err.message, true);
+          alert('エラー: ' + err.message);
+        })
+        .generateInvoiceFromApp(name, monthVal);
+    }
+
+    function handleOpenMailPreview(forceOverwrite) {
+      const name = getName();
+      if (!name) return;
+      const monthVal = document.getElementById('invoiceMonth').value;
+      if (!monthVal) { alert('対象年月を選択してください'); return; }
+
+      const btnPreview = document.getElementById('btnOpenMailPreview');
+      btnPreview.disabled = true;
+      btnPreview.innerText = '合体Excelを確認中...';
+
+      showLoading('請求書Excelの確認中...');
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          hideLoading();
+          btnPreview.disabled = false;
+          btnPreview.innerText = '✉️ メールで請求書を送信する';
+
+          if (res.alreadyExists) {
+            document.getElementById('overwriteConfirmText').innerText = res.confirmMessage;
+            document.getElementById('overwriteModal').style.display = 'block';
+            return;
+          }
+
+          if (res.success) {
+            preparedMailData = res;
+
+            document.getElementById('editMailTo').value = res.to;
+            document.getElementById('editMailSubject').value = res.subject;
+            document.getElementById('editMailBody').value = res.body;
+            
+            const fileLink = document.getElementById('previewFileLink');
+            fileLink.innerText = '📎 ' + res.fileName;
+            fileLink.href = res.fileDownloadUrl;
+
+            document.getElementById('fallbackGmailLink').href = res.gmailAppUrl;
+
+            const btnDirect = document.getElementById('btnSendDirect');
+            btnDirect.disabled = false;
+            btnDirect.innerText = '✉️ この内容でメールを送信する';
+            btnDirect.className = 'btn btn-green';
+
+            const modal = document.getElementById('mailModal');
+            modal.style.display = 'block';
+            modal.scrollTop = 0;
+            updateVisualViewport();
+          } else {
+            showToast(res.message, true);
+            alert(res.message);
+          }
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          btnPreview.disabled = false;
+          btnPreview.innerText = '✉️ メールで請求書を送信する';
+          showToast('エラー: ' + err.message, true);
+          alert('エラー: ' + err.message);
+        })
+        .prepareEmailPreview(name, monthVal, !!forceOverwrite);
+    }
+
+    function confirmOverwriteAndProceed() {
+      closeOverwriteModal();
+      handleOpenMailPreview(true);
+    }
+
+    function closeOverwriteModal() {
+      document.getElementById('overwriteModal').style.display = 'none';
+    }
+
+    function closeMailModal() {
+      const modal = document.getElementById('mailModal');
+      modal.style.display = 'none';
+      modal.style.height = '100vh';
+      modal.style.top = '0px';
+    }
+
+    function handleExecuteSend() {
+      if (!preparedMailData) {
+        alert('送信データが見つかりません。もう一度お試しください。');
+        return;
+      }
+
+      const toVal = document.getElementById('editMailTo').value.trim();
+      const subjectVal = document.getElementById('editMailSubject').value.trim();
+      const bodyVal = document.getElementById('editMailBody').value;
+
+      if (!toVal) {
+        alert('宛先メールアドレスを入力してください');
+        return;
+      }
+      if (!subjectVal) {
+        alert('件名を入力してください');
+        return;
+      }
+
+      const btnDirect = document.getElementById('btnSendDirect');
+      btnDirect.disabled = true;
+      btnDirect.innerText = 'Gmailから送信中...';
+
+      showLoading('Gmailから請求書メールを送信中...');
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          hideLoading();
+          if (res.success) {
+            closeMailModal();
+            showToast('✅ 請求書メールを正常に送信しました！');
+          } else {
+            btnDirect.disabled = false;
+            btnDirect.innerText = '✉️ この内容でメールを送信する';
+            showToast(res.message, true);
+            alert(res.message);
+          }
+        })
+        .withFailureHandler(function(err) {
+          hideLoading();
+          btnDirect.disabled = false;
+          btnDirect.innerText = '✉️ この内容でメールを送信する';
+          showToast('送信エラー: ' + err.message, true);
+          alert('送信エラー: ' + err.message);
+        })
+        .sendInvoiceEmailDirect(
+          toVal,
+          subjectVal,
+          bodyVal,
+          preparedMailData.tempId,
+          preparedMailData.fileName
+        );
+    }
+  </script>
+</body>
+</html>
