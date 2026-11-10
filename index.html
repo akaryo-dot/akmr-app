@@ -679,53 +679,58 @@
   </style>
 
   <!-- ======================================================== -->
-  <!-- ★ GAS通信エミュレータ（外部GitHubからGAS関数を動かすエンジン） -->
+  <!-- ★ GAS通信エミュレータ（修正完全版） -->
   <!-- ======================================================== -->
   <script>
     const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxR7qDwQbfxlK0Gyxu4xQMS4HpSVm4qDEuENIkuJq-ZmC5dsaxhR1aN2a35Qv3MD9RN/exec";
 
+    function createGASProxy() {
+      let successCb = null;
+      let failureCb = null;
+
+      const runner = {
+        withSuccessHandler: function(cb) {
+          successCb = cb;
+          return runner;
+        },
+        withFailureHandler: function(cb) {
+          failureCb = cb;
+          return runner;
+        }
+      };
+
+      return new Proxy(runner, {
+        get: function(target, prop) {
+          if (prop in target) return target[prop];
+          return async function(...args) {
+            try {
+              const res = await fetch(GAS_ENDPOINT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({ action: prop, args: args })
+              });
+              const json = await res.json();
+              if (json.success) {
+                if (successCb) successCb(json.data);
+              } else {
+                const err = new Error(json.error || "GAS処理エラー");
+                if (failureCb) failureCb(err);
+                else alert(err.message);
+              }
+            } catch (err) {
+              if (failureCb) failureCb(err);
+              else alert("通信エラー: " + err.message);
+            }
+          };
+        }
+      });
+    }
+
     const google = {
       script: {
-        run: new Proxy({}, {
-          get: function(target, prop) {
-            let successCb = null;
-            let failureCb = null;
-
-            const runner = {
-              withSuccessHandler: function(cb) {
-                successCb = cb;
-                return runner;
-              },
-              withFailureHandler: function(cb) {
-                failureCb = cb;
-                return runner;
-              }
-            };
-
-            return new Proxy(runner, {
-              get: function(rTarget, actionName) {
-                if (actionName in rTarget) return rTarget[actionName];
-                return async function(...args) {
-                  try {
-                    const response = await fetch(GAS_ENDPOINT_URL, {
-                      method: "POST",
-                      headers: { "Content-Type": "text/plain;charset=utf-8" },
-                      body: JSON.stringify({ action: actionName, args: args })
-                    });
-                    const json = await response.json();
-                    if (json.success) {
-                      if (successCb) successCb(json.data);
-                    } else {
-                      if (failureCb) failureCb(new Error(json.error || "GAS処理エラー"));
-                    }
-                  } catch (err) {
-                    if (failureCb) failureCb(err);
-                  }
-                };
-              }
-            });
-          }
-        })
+        get run() {
+          return createGASProxy();
+        }
       }
     };
   </script>
