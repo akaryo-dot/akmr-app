@@ -679,29 +679,29 @@
   </style>
 
   <!-- ======================================================== -->
-  <!-- ★ GAS通信エミュレータ（修正完全版） -->
+  <!-- ★ GAS通信エミュレータ（完全改修版） -->
   <!-- ======================================================== -->
   <script>
     const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbxR7qDwQbfxlK0Gyxu4xQMS4HpSVm4qDEuENIkuJq-ZmC5dsaxhR1aN2a35Qv3MD9RN/exec";
 
-    function createGASProxy() {
-      let successCb = null;
-      let failureCb = null;
+    function createGASRunner() {
+      let successHandler = null;
+      let failureHandler = null;
 
-      const runner = {
-        withSuccessHandler: function(cb) {
-          successCb = cb;
-          return runner;
-        },
-        withFailureHandler: function(cb) {
-          failureCb = cb;
-          return runner;
-        }
-      };
-
-      return new Proxy(runner, {
+      const handlerProxy = new Proxy({}, {
         get: function(target, prop) {
-          if (prop in target) return target[prop];
+          if (prop === 'withSuccessHandler') {
+            return function(cb) {
+              successHandler = cb;
+              return handlerProxy;
+            };
+          }
+          if (prop === 'withFailureHandler') {
+            return function(cb) {
+              failureHandler = cb;
+              return handlerProxy;
+            };
+          }
           return async function(...args) {
             try {
               const res = await fetch(GAS_ENDPOINT_URL, {
@@ -711,25 +711,27 @@
               });
               const json = await res.json();
               if (json.success) {
-                if (successCb) successCb(json.data);
+                if (successHandler) successHandler(json.data);
               } else {
                 const err = new Error(json.error || "GAS処理エラー");
-                if (failureCb) failureCb(err);
+                if (failureHandler) failureHandler(err);
                 else alert(err.message);
               }
             } catch (err) {
-              if (failureCb) failureCb(err);
+              if (failureHandler) failureHandler(err);
               else alert("通信エラー: " + err.message);
             }
           };
         }
       });
+
+      return handlerProxy;
     }
 
     const google = {
       script: {
         get run() {
-          return createGASProxy();
+          return createGASRunner();
         }
       }
     };
@@ -1457,6 +1459,11 @@
       document.getElementById('invoiceMonth').value = `${y}-${m}`;
       document.getElementById('manualDate').value = `${y}-${m}-${d}`;
 
+      // ★ URLパラメータ（?name=飯島涼）または端末保存の名前を取得
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramName = urlParams.get('name');
+      const targetName = (paramName ? paramName.trim() : '') || getStoredName();
+
       google.script.run
         .withSuccessHandler(function(data) {
           masterData = data.categories;
@@ -1469,10 +1476,9 @@
             return;
           }
 
-          const savedName = getStoredName();
-          if (savedName) {
-            document.getElementById('userName').value = savedName;
-            checkUser(savedName, true);
+          if (targetName) {
+            document.getElementById('userName').value = targetName;
+            checkUser(targetName, true);
           } else {
             document.getElementById('fileStatus').innerText = 'お名前を入力して確認ボタンを押してください';
           }
